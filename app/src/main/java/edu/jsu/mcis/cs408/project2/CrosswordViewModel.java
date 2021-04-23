@@ -38,7 +38,7 @@ public class CrosswordViewModel extends ViewModel {
         this.context = context;
         if (words.getValue() == null) {
             loadWords();
-            addAllWordsToGrid(); // for testing only; remove later!
+            addAllWordSpaces();
         }
     }
 
@@ -98,6 +98,45 @@ public class CrosswordViewModel extends ViewModel {
 
          */
 
+        if (word.isDown()) {
+            for (int i = 0; i < word.getWord().length(); i++) {
+                letters.getValue()[row + i][column] = word.getWord().charAt(i);
+            }
+        } else {
+            for (int i = 0; i < word.getWord().length(); i++) {
+                letters.getValue()[row][column + i] = word.getWord().charAt(i);
+            }
+        }
+
+    }
+
+    // Add empty characters to proper space
+
+    private void addAllWordSpaces() {
+        for (Map.Entry<String, Word> e : words.getValue().entrySet()) {
+
+            // Get Word Properties
+
+            int row = e.getValue().getRow();
+            int column = e.getValue().getColumn();
+            int box = e.getValue().getBox();
+
+            // Place box number into Numbers array
+
+            numbers.getValue()[row][column] = box;
+
+            // Place word letters into Letters array
+
+            if (e.getValue().isAcross()) {
+                for (int i = 0; i < e.getValue().getWord().length(); i++) {
+                    letters.getValue()[row][column + i] = BLANK_CHAR;
+                }
+            } else if (e.getValue().isDown()) {
+                for (int i = 0; i < e.getValue().getWord().length(); i++) {
+                    letters.getValue()[row + i][column] = BLANK_CHAR;
+                }
+            }
+        }
     }
 
     // Add All Words to Grid (for testing only!)
@@ -144,6 +183,14 @@ public class CrosswordViewModel extends ViewModel {
                         INSERT YOUR CODE HERE
 
                      */
+
+                    if (word.isDown()) {
+                        clueDownBuffer.append(word.getBox() + ": " + word.getClue() + "\n");
+                    } else if (word.isAcross()) {
+                        clueAcrossBuffer.append(word.getBox() + ": " + word.getClue() + "\n");
+                    }
+
+                    Log.d("Word2", String.valueOf(word));
 
                 }
                 else if (fields.length == WORD_HEADER_FIELDS) {
