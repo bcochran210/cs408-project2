@@ -48,12 +48,20 @@ public class CrosswordViewModel extends ViewModel {
         return words;
     }
 
+    public Word getWord(int box_num, String word_dir) {
+        return words.getValue().get(box_num + word_dir);
+    }
+
     public LiveData<char[][]> getLetters() {
         return letters;
     }
 
     public LiveData<int[][]> getNumbers() {
         return numbers;
+    }
+
+    public int getNumber(int row, int column) {
+        return numbers.getValue()[row][column];
     }
 
     public LiveData<String> getCluesAcross() {
@@ -72,9 +80,22 @@ public class CrosswordViewModel extends ViewModel {
         return puzzleHeight.getValue();
     }
 
+    // Check if Game Was Won
+
+    public boolean gameWon(){
+        for (int i = 0; i < puzzleWidth.getValue(); i++) {
+            for (int j = 0; j < puzzleHeight.getValue(); j++) {
+                if (letters.getValue()[i][j] == BLANK_CHAR) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     // Add Word to Grid
 
-    private void addWordToGrid(String key) {
+    void addWordToGrid(String key) {
 
         // Get Word from collection (look up using the given key)
 

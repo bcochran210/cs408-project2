@@ -1,5 +1,7 @@
 package edu.jsu.mcis.cs408.project2;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -8,11 +10,13 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +25,7 @@ import java.util.ArrayList;
 public class PuzzleFragment extends Fragment implements TabFragment {
 
     private final String FRAGMENT_TITLE = "Puzzle";
+    private String user_input = "";
 
     private ArrayList<ArrayList<TextView>> gridSquareViews;
     private ArrayList<ArrayList<TextView>> gridNumberViews;
@@ -99,6 +104,57 @@ public class PuzzleFragment extends Fragment implements TabFragment {
 
         String message = row + "/" + col;
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+
+        // Get User Input
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+
+        builder.setTitle("Enter Guess");
+        builder.setMessage("Enter a guess: ");
+
+        EditText input_field = new EditText(this.getActivity());
+
+        input_field.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input_field);
+        builder.setPositiveButton("Make Guess", new DialogInterface.OnClickListener() {
+           @Override
+           public void onClick(DialogInterface d, int i) {
+               user_input = input_field.getText().toString().toUpperCase();
+
+               Word word_across = model.getWord(model.getNumber(row, col), "A");
+               Word word_down = model.getWord(model.getNumber(row, col), "D");
+
+               if (word_across != null) {
+                   if (word_across.getWord().equals(user_input)) {
+                       model.addWordToGrid(model.getNumber(row, col) + "A");
+                   }
+               }
+
+               if (word_down != null) {
+                   if (word_down.getWord().equals(user_input)) {
+                       model.addWordToGrid(model.getNumber(row, col) + "D");
+                   }
+               }
+
+               updateGrid();
+
+               if (model.gameWon()) {
+                   gameOver();
+               }
+
+           }
+
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface d, int i) {
+                user_input = "";
+                d.cancel();
+            }
+        });
+
+        AlertDialog about_dialog = builder.show();
 
     }
 
@@ -286,5 +342,18 @@ public class PuzzleFragment extends Fragment implements TabFragment {
     }
 
     public String getTabTitle() { return FRAGMENT_TITLE; }
+
+    private void gameOver() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+
+        builder.setTitle("Game Ended");
+        builder.setMessage("Congratulations! You completed the puzzle!");
+        builder.setPositiveButton("End Game", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface d, int i) { }
+        });
+
+        AlertDialog about_dialog = builder.show();
+    }
 
 }
